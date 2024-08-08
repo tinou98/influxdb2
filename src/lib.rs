@@ -208,7 +208,7 @@ impl Client {
 /// Errors that occur when building the client
 #[derive(Debug, Snafu)]
 pub enum BuildError {
-    /// While constructing the reqwest client an error occured
+    /// While constructing the reqwest client an error occurred
     #[snafu(display("Error while building the client: {}", source))]
     ReqwestClientError {
         /// Reqwest internal error
@@ -255,7 +255,8 @@ impl ClientBuilder {
         };
 
         let url: String = url.into();
-        let base = Url::parse(&url).expect(&format!("Invalid url was provided: {}", &url));
+        let base =
+            Url::parse(&url).unwrap_or_else(|_| panic!("Invalid url was provided: {}", &url));
 
         Self {
             base,
