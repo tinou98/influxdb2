@@ -2,7 +2,6 @@ use std::any::Any;
 use std::fmt;
 
 use chrono::{DateTime, FixedOffset};
-use num_traits::cast::ToPrimitive;
 use ordered_float::OrderedFloat;
 
 /// Represents primitive types that are supported for conversion into a BTreeMap that can support
@@ -82,7 +81,7 @@ impl Value {
 
     pub fn f64(&self) -> Option<f64> {
         if let Value::Double(val) = self {
-            val.to_f64()
+            Some(val.into_inner())
         } else {
             None
         }

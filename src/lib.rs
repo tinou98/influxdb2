@@ -104,6 +104,11 @@ use reqwest::{Method, Url};
 use secrecy::{ExposeSecret, Secret};
 use snafu::{ResultExt, Snafu};
 
+#[doc(hidden)]
+pub mod __private {
+    pub use influxdb2_structmap;
+}
+
 /// Errors that occur while making requests to the Influx server.
 #[derive(Debug, Snafu)]
 pub enum RequestError {

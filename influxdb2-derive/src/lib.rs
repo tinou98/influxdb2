@@ -64,9 +64,9 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
     let name: &Ident = &ast.ident;
     let (impl_generics, ty_generics, where_clause) = ast.generics.split_for_impl();
 
-    let datetime_re = regex::Regex::new(r"DateTime").unwrap();
-    let duration_re = regex::Regex::new(r"Duration").unwrap();
-    let base64_re = regex::Regex::new(r"Vec").unwrap();
+    const DATETIME_RE: &str = "DateTime";
+    const DURATION_RE: &str = "Duration";
+    const BASE64_RE: &str = "Vec";
     let mut assignments = Vec::new();
     for (key, typename, ident) in izip!(keys, typenames, idents) {
         match &typename[..] {
@@ -78,8 +78,8 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::Double(v) = entry.get() {
-                                settings.#ident = (v as &::num_traits::cast::ToPrimitive).to_f64().unwrap();
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::Double(v) = entry.get() {
+                                settings.#ident = v.into_inner();
                             }
                         },
                         _ => panic!("Cannot parse out map entry, key: {}", key),
@@ -94,7 +94,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::Long(v) = entry.get() {
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::Long(v) = entry.get() {
                                 settings.#ident = *v;
                             }
                         },
@@ -110,7 +110,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::UnsignedLong(v) = entry.get() {
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::UnsignedLong(v) = entry.get() {
                                 settings.#ident = *v;
                             }
                         },
@@ -126,7 +126,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::Bool(v) = entry.get() {
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::Bool(v) = entry.get() {
                                 settings.#ident = *v;
                             }
                         },
@@ -142,7 +142,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::String(v) = entry.get() {
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::String(v) = entry.get() {
                                 settings.#ident = v.clone();
                             }
                         },
@@ -150,7 +150,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                 })
             }
-            x if duration_re.is_match(x) => {
+            x if x.contains(DURATION_RE) => {
                 assignments.push(quote! {
                     let mut key = String::from(#key);
                     if !hashmap.contains_key(&key) {
@@ -158,7 +158,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::Duration(v) = entry.get() {
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::Duration(v) = entry.get() {
                                 settings.#ident = *v;
                             }
                         },
@@ -166,7 +166,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                 })
             }
-            x if datetime_re.is_match(x) => {
+            x if x.contains(DATETIME_RE) => {
                 assignments.push(quote! {
                     let mut key = String::from(#key);
                     if !hashmap.contains_key(&key) {
@@ -174,7 +174,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::TimeRFC(v) = entry.get() {
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::TimeRFC(v) = entry.get() {
                                 settings.#ident = *v;
                             }
                         },
@@ -182,7 +182,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                 })
             }
-            x if base64_re.is_match(x) => {
+            x if x.contains(BASE64_RE) => {
                 assignments.push(quote! {
                     let mut key = String::from(#key);
                     if !hashmap.contains_key(&key) {
@@ -190,7 +190,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
                     }
                     match hashmap.entry(key.clone()) {
                         ::std::collections::btree_map::Entry::Occupied(entry) => {
-                            if let influxdb2_structmap::value::Value::Base64Binary(v) = entry.get() {
+                            if let influxdb2::__private::influxdb2_structmap::value::Value::Base64Binary(v) = entry.get() {
                                 settings.#ident = *v;
                             }
                         },
@@ -206,9 +206,9 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
 
     // start codegen of a generic or non-generic impl for the given struct using quasi-quoting
     let tokens = quote! {
-        impl #impl_generics influxdb2_structmap::FromMap for #name #ty_generics #where_clause {
+        impl #impl_generics influxdb2::__private::influxdb2_structmap::FromMap for #name #ty_generics #where_clause {
 
-            fn from_genericmap(mut hashmap: influxdb2_structmap::GenericMap) -> #name {
+            fn from_genericmap(mut hashmap: influxdb2::__private::influxdb2_structmap::GenericMap) -> #name {
                 let mut settings = #name::default();
 
                 #(

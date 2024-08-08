@@ -627,7 +627,6 @@ dependencies = [
  "influxdb2-derive",
  "influxdb2-structmap",
  "mockito",
- "num-traits",
  "once_cell",
  "ordered-float",
  "parking_lot",
@@ -649,7 +648,6 @@ dependencies = [
  "itertools",
  "proc-macro2",
  "quote",
- "regex",
  "syn 1.0.74",
 ]
 
@@ -658,7 +656,6 @@ name = "influxdb2-structmap"
 version = "0.2.0"
 dependencies = [
  "chrono",
- "num-traits",
  "ordered-float",
 ]
 
